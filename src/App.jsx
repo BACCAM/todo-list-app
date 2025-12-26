@@ -25,6 +25,10 @@ const TABLE_NAME = "todos";
 const COL_CONTENT = "title";
 const COL_COMPLETED = "completed";
 const LOCAL_STORAGE_KEY = "todo-guest-items";
+const REDIRECT_TO =
+  typeof window !== "undefined" && window.location?.origin
+    ? `${window.location.origin}/`
+    : undefined;
 
 function hasLocalStorage() {
   return typeof window !== "undefined" && typeof window.localStorage !== "undefined";
@@ -466,7 +470,7 @@ export default function App() {
         setAuthError("Enter your email to reset your password.");
         return;
       }
-      supabase.auth.resetPasswordForEmail(email).then(({ error }) => {
+      supabase.auth.resetPasswordForEmail(email, { redirectTo: REDIRECT_TO }).then(({ error }) => {
         if (error) {
           setAuthError(error.message);
         } else {
@@ -481,7 +485,7 @@ export default function App() {
 
     if (authMode === "signUp") {
       supabase.auth
-        .signUp({ email, password })
+        .signUp({ email, password, options: { emailRedirectTo: REDIRECT_TO } })
         .then(({ error, data }) => {
           if (error) {
             const msg = error.message || "";
